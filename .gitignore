@@ -1,0 +1,32 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+node_modules/
+static/dist/css/output.css
+# Virtual environment
+.myenv/
+myenv/
+venv/
+.env*/        # Catches .env.local, .env.production, etc.
+
+# Media files (uploads)
+staticfiles/
+# VS Code settings (optional, if you use VS Code)
+.vscode/
+env_secretkeys.txt
+# MacOS system files (optional, if you're on Mac)
+.DS_Store
+# Node/npm artifacts (if used for Tailwind or JS bundling)
+*.log
+static/yt_cookies.txt
+static/cookies.txt
+cookies.txt
+# Compiled or temporary files
+*.log
+*.pot
+*.pyc
+*.pyo
+

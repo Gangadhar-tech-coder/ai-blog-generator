@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Blog Generator | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="google-site-verification" content="VtmjrCOFnOTEWJ51MJv1MPGoY-zyaE3E4P_prQpLy24" />
+    
+    <style>
+        /* 1. Global Background */
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        /* 2. Glassmorphism Card Styling */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 3. Navigation Styling */
+        nav {
+            background: rgba(2, 6, 23, 0.8) !important;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 4. Inputs & Interactive Elements */
+        input {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            transition: all 0.3s ease !important;
+        }
+
+        input:focus {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4) !important;
+            border-color: #6366f1 !important;
+            outline: none;
+        }
+
+        /* 5. Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+            transition: all 0.3s ease !important;
+            border: none !important;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            filter: brightness(1.2);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5);
+        }
+
+        /* 6. Loading Animation */
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .load {
+            width: 60px;
+            height: 60px;
+            margin: 20px auto;
+            border: 4px solid rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            border-top-color: #6366f1;
+            animation: rotate 1s linear infinite;
+        }
+
+        /* 7. Record Button Pulse */
+        #recordBtn {
+            background-color: #ef4444;
+            transition: all 0.3s ease;
+        }
+        #recordBtn.recording {
+            animation: pulse 1.5s infinite;
+            background-color: #991b1b;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen pt-[80px] antialiased">
+
+    <nav class="fixed top-0 left-0 w-full p-4 text-white z-50">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-2">            
+            <div class="flex flex-col md:flex-row text-sm md:text-base gap-2 md:gap-0">
+                <a href='{% url "home" %}' class="text-white hover:text-indigo-400 transition-colors mx-2 md:mx-4">
+                    Welcome <strong class="text-indigo-400"> {{user.username}}</strong>
+                </a>
+            </div>
+            <div class="flex gap-6 items-center">
+                <a href='{% url "blog-list" %}' class="text-sm font-medium hover:text-indigo-400 transition-colors">Saved Posts</a>
+                <a href='{% url "logout" %}' class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition-all">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <marquee class="pointer-events-none text-indigo-300/60 mt-4 text-sm">
+        Getting Invalid URL?
+        <a href="https://github.com/sai-krishna-kotha/ai_blog_app" class="text-red-400 pointer-events-auto underline">
+            See why you're getting this error
+        </a>
+    </marquee>
+
+    <div class="flex-grow container mx-auto mt-6 px-4">
+        <div class="max-w-3xl mx-auto glass-card p-8 rounded-2xl shadow-2xl flex flex-col">
+
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+                    AI Blog Engine
+                </h2>
+                <p class="text-slate-400 leading-relaxed">
+                    Transform YouTube videos or your own voice into SEO-optimized blog articles in seconds.
+                </p>
+            </div>
+            
+            <div class="mb-8">
+                <h2 class="text-sm font-semibold mb-3 uppercase tracking-widest text-slate-500">YouTube Input</h2>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input id="youtubeLink" type="url" placeholder="Paste YouTube link here..."
+                        class="flex-grow p-3 rounded-xl">
+                    <button type="button" id="generateBlogButton" 
+                        class="btn-primary text-white px-8 py-3 rounded-xl font-bold cursor-pointer disabled:opacity-50">
+                        Generate
+                    </button>
+                </div>                
+            </div>
+
+            <div class="flex items-center gap-4 mb-8">
+                <div class="flex-grow border-t border-white/10"></div>
+                <span class="text-slate-500 text-xs font-bold uppercase">OR</span>
+                <div class="flex-grow border-t border-white/10"></div>
+            </div>
+
+            <div class="relative z-20">
+                <h2 class="text-sm font-semibold mb-4 uppercase tracking-widest text-slate-500">Voice Transcription</h2>
+
+                <div class="flex items-center gap-6 bg-slate-900/40 p-4 rounded-2xl border border-white/5">
+                    <button id="recordBtn" type="button"
+                        class="w-16 h-16 rounded-full text-2xl flex items-center justify-center shadow-lg active:scale-90">
+                        🎤
+                    </button>
+
+                    <div class="flex flex-col">
+                        <span id="recordStatus" class="text-sm font-medium text-slate-200">Ready to record</span>
+                        <span id="timer" class="text-xs text-indigo-400 font-mono">00:00</span>
+                    </div>
+                </div>
+
+                <audio id="audioPlayer" class="mt-4 hidden w-full" controls></audio>
+                
+                <button id="generateAudioBtn" type="button" disabled
+                    class="btn-primary w-full mt-4 text-white p-3 rounded-xl font-bold disabled:opacity-30 disabled:cursor-not-allowed">
+                    Generate Blog from Audio
+                </button>
+            </div>
+
+            <div class="mt-6">
+                <div class="text-center font-bold text-indigo-400 animate-pulse hidden" id="warning-on-process">
+                    Neural processing in progress... do not reload.
+                </div>
+                <div style="display: none;" id="loading-circle" class="load"></div>
+                <div id="error-invalid-yt-url" class="text-center text-red-400 mt-2 hidden text-sm">Please enter a valid YouTube URL</div>
+                <div id="error-empty-yt-url" class="text-center text-red-400 mt-2 hidden text-sm">URL field cannot be empty</div>
+            </div>
+            
+            <section class="mt-8 flex-grow hidden border-t border-white/10 pt-8" id="generated-block">
+                <h2 class="text-xl mb-4 font-bold text-indigo-300">Generated Article</h2>
+                <div id="blogContent" class="mt-2 space-y-4 text-slate-300 leading-relaxed prose prose-invert max-w-none"></div>
+                <div class="mt-8 p-4 bg-indigo-500/10 rounded-xl text-center border border-indigo-500/20">
+                    <p class="text-sm">Success! Article saved to <a href='{% url "blog-list" %}' class="text-indigo-400 font-bold hover:underline">Your Library</a></p>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <footer class="text-center p-8 text-slate-500 text-xs tracking-widest mt-6 uppercase">
+        Powered by <span class="text-indigo-400 font-bold">Code With Saii</span> &copy; 2026
+    </footer>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

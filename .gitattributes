@@ -1,0 +1,17 @@
+# Enforce consistent line endings across the repository
+* text=auto
+
+# Explicitly treat common text file types as text
+*.py text
+*.html text
+*.css text
+*.js text
+*.md text
+*.sh text
+
+# Mark common binary file types
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
